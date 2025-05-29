@@ -1,25 +1,25 @@
 # unseen
 
-E2E encrypted note pastebin. Made with NuxtJS <3
+E2E encrypted note sharing service.
+
+![image](https://github.com/user-attachments/assets/6c40d0c1-8563-4881-b27d-20dd174f27f8)
+![image](https://github.com/user-attachments/assets/3c336362-2f9b-4b28-86eb-f7a1701d8eb1)
 
 ### Features
 
-- Fully E2E encrypted
-- Expiration duration (TTL)
+- E2E Encryption
+- Expiration Duration 
 - Burn after read
 
-## Encryption
+## E2E
 
-Notes are encrypted with AES-256-GCM and a random key in client-side. The key is encoded in the URL hash, stored and transmitted as encrypted.
-Database has no any info other than a **IV** and **encrypted content**.
-
-- [tweetnacl util](https://www.npmjs.com/package/tweetnacl-util) helped in encoding and decoding the key.
+Random encryption key is generated at client side and stored in **url hash** for decrypt, the encryption key and raw content never being sent to the server, server stores **IV** and **encrypted content** only. Thus we follow E2E practices.
+Encryption is done with [tweetnacl](https://www.npmjs.com/package/tweetnacl)'s **secretbox** API.
 
 ### Stack
 
-- [antdv](https://antdv.com/components/overview) ui library
+- [antdv](https://antdv.com/components/overview) UI library
 - [tweetnacl](https://www.npmjs.com/package/tweetnacl) for encryption
-- [tweetnacl-util](https://www.npmjs.com/package/tweetnacl-util) for encoding and decoding the key
 - [yup](https://www.npmjs.com/package/yup) for validation
 - [mongoose](https://www.npmjs.com/package/mongoose) for database
 - [parse-duration](https://www.npmjs.com/package/parse-duration) for parsing the TTL
@@ -28,6 +28,4 @@ Database has no any info other than a **IV** and **encrypted content**.
 
 Configure `.env` for **MONGODB_URI** and run `npm run dev`.
 
-```bash
 
-```
