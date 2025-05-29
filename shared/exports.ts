@@ -7,6 +7,6 @@ export interface NoteDOM {
   destructive: boolean;
   content: string;
   author: string;
-  expiresAt: Date;
+  expiresAt: Date | null; // null if 'never'
   createdAt: Date;
 }

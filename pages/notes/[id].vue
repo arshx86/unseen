@@ -23,9 +23,16 @@
           </p>
         </header>
 
-        <AAlert v-if="note.expiresAt || !note.destructive" type="info">
+        <!-- if not burn_after_read and has a expiry date, show expiry date -->
+        <AAlert v-if="note.expiresAt && !note.destructive" type="info">
           <template #description>
             This note will be deleted at {{ new Date(note.expiresAt).toLocaleString() }}
+          </template>
+        </AAlert>
+
+        <AAlert v-if="note.destructive" type="error">
+          <template #description>
+            for your eyes only, this note will be deleted after reading.
           </template>
         </AAlert>
 

@@ -6,15 +6,16 @@
         unseen
       </h1>
       <p class="text-muted-foreground text-sm">
-        end to end encrypted note sharing service. No one can read your notes even server, ISP.
+        end to end encrypted note sharing service. No one can intercept your notes, even server,
+        ISP.
         <br />
       </p>
       <div class="mt-2 text-muted-foreground text-sm items-center jutify-center">
-        <code class="cursor-pointer" @click="howItWorks">how it works?</code>
+        <code class="cursor-pointer" @click="howItWorks">How it works?</code>
         |
         <code class="cursor-pointer items-center" @click="openSource">
           <Icon name="mdi:github" />
-          open source
+          Open source
         </code>
       </div>
     </header>
@@ -22,7 +23,7 @@
     <div class="max-w-4xl mx-auto space-y-6">
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium mb-1">Expiration</label>
+          <label class="block text-sm font-medium mb-1">Expiry</label>
           <ASelect v-model:value="form.expires" size="large" class="w-full">
             <ASelectOption v-for="option in AUTO_DELETE_SUFFIXS" :key="option" :value="option">
               {{ option }}
@@ -31,7 +32,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium mb-1">Author</label>
+          <label class="block text-sm font-medium mb-1">Share as</label>
           <AInput
             v-model:value="form.author"
             :maxlength="10"
@@ -43,7 +44,7 @@
 
       <div class="flex items-center space-x-2">
         <ASwitch v-model:checked="form.destructive" />
-        <span class="text-sm">Suicide after read</span>
+        <span class="text-sm">Burn after read</span>
       </div>
 
       <div>
@@ -61,9 +62,9 @@
           size="large"
           :loading="loading"
           :disabled="form.content.length < MIN_CONTENT_LENGTH"
-          class="min-w-[120px]"
+          block
           @click="createNote">
-          Create Note
+          Share
         </AButton>
       </div>
     </div>
@@ -89,25 +90,23 @@
   });
 
   const createNote = async () => {
-    console.log(`kripto.js -- start enc`);
-    loading.value = true;
     try {
-      if (form.value.content.length < MIN_CONTENT_LENGTH) {
-        throw new Error("Content is too short");
-      }
+      loading.value = true;
+      // too short
+      if (form.value.content.length < MIN_CONTENT_LENGTH) throw new Error("Content is too short");
 
-      // gen client-side key and encrypt
+      // create key
       const key = nacl.randomBytes(32);
-      const final = encryptContent(form.value.content, key);
+      const keyb64 = naclUtil.encodeBase64(key);
+      const encryption = encryptContent(form.value.content, key);
 
-      // store iv and encrypted content
-      form.value.iv = final.iv;
-      form.value.content = final.encryptedContent;
+      // stores
+      form.value.iv = encryption.iv;
+      form.value.content = encryption.encryptedContent;
 
-      // api
       const { data } = await axios.post("/api/notes", form.value);
+      const finalUrl = `${window.location.origin}/notes/${data.id}#${keyb64}`;
 
-      const finalUrl = `${window.location.origin}/notes/${data.id}#${naclUtil.encodeBase64(key)}`;
       await navigator.clipboard.writeText(finalUrl);
       message.success("Link copied to clipboard", 5 * 1000);
 
@@ -131,11 +130,11 @@
     Modal.info({
       title: "E2E Encryption",
       content:
-        "By using a encryption key created by you, in your browser the note is encrypted before it being sent to the server. The raw (unencrypted) data never touches to the server. When you share the link, key will be in the URL hash, this is required to decrypt the note, if you find URL is too long you can slice the key (before the #) and we will ask it in the note page.",
+        "Notes are encrypted in your browser before being sent to the server. The decryption key is included in the shared URL to allow recipients to decrypt the note. The unencrypted content and key never touches the server, this means you don't need to trust the server.",
     });
   };
 
   const openSource = () => {
-    router.push("https://github.com/arshx86/unseen");
+    window.open("https://github.com/arshx86/unseen", "_blank");
   };
 </script>
